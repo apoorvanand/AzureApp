@@ -1,10 +1,13 @@
 var express = require('express');
-var { MongoClient } = require('mongodb');
-
+const mongodb=require('mongodb');
+//var { MongoClient } = require('mongodb');
+//const client = require('mongodb').MongoClient;
+//const db= "mydatabase";
+//var client = require('mongodb').MongoClient;
 var router = express.Router();
 
-const title = process.env.TITLE;
 
+const title ="my app";
 const books = [
   {
     title: 'War and Peace',
@@ -56,31 +59,32 @@ const books = [
     author: 'Lev Nikolayevich Tolstoy',
     read: false
   }];
+
 /* GET home page. */
-router.get('/', function (req, res, next) {
-  const url = process.env.URL;
-  const password = process.env.PASSWORD;
-  const user = process.env.USER;
-  const dbName = 'library';
+router.get('/',function (req, res, next) {
+  
+(async function mm(){
+  let uri = 'mongodb://localhost:27017/mydata' ;
+  try {await mongodb.MongoClient.connect(uri,async function(err,client){
+    if(err)throw(err);
+    let db=client.db('mydata')
+    //let books=db.collection('books');
+    const response=await db.collection('books').insertMany(books);
+    //client.close();
+    res.json(response);
+    console.log(response)
+     })
+    
+   }
+   catch (error) {
+    console.log(error);
+  }
+  })
+   ();
+  
+  
 
-  (async function mongo() {
-    let client;
-    try {
-      client = await MongoClient.connect(url, { 
-        auth: {
-          user,
-          password
-        }
-      }
-    );
-
-      const db = client.db(dbName);
-      const response = await db.collection('books').insertMany(books);
-      res.json(response);
-    } catch (err) {
-      res.send(err);
-    }
-  }())
 });
+
 
 module.exports = router;
